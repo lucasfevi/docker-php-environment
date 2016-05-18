@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+# sex -x
+
+machine_name='default'
+
+# Get last directory of pwd
+base=$(basename `pwd`)
+base=${base/-/}
+
+echo 'Finishing your server ...'
+
+# Sets environment
+eval $(docker-machine env $machine_name)
+
+cd docker
+docker-compose -p $base stop
