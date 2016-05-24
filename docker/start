@@ -5,6 +5,8 @@ set -e
 
 machine_name='default'
 port=80
+path='..\/www\/'
+rebuild=false
 
 # Get last directory of pwd
 base=$(basename `pwd`)
@@ -17,7 +19,9 @@ show_help () {
     echo
     echo 'Options:'
     echo '  -m            Docker machine name to be started. (default: default)'
-    echo '  -p            Port to be used on your server. (default: 80)'
+    echo '  -P            Port to be used on your server. (default: 80)'
+    echo '  -p            Path to be used as root on your folder. (default: ../www/)'
+    echo '  -f            Force rebuild on the images.'
 }
 
 parse_options() {
@@ -31,10 +35,16 @@ parse_options() {
         -m) machine_name="$2"
             shift 2
         ;;
-        -p) port="$2"
+        -P) port="$2"
             shift 2
         ;;
-
+        -p) path="$2"
+            path=${path/\//\\\/}
+            shift 2
+        ;;
+        -f) rebuild=true;
+            shift 1
+        ;;
         ?*) echo 'ERROR: Unknown option.'
             show_help
             exit 0
@@ -73,14 +83,18 @@ set_environment() {
 generate_compose_file() {
     # Go to docker folder and generates docker-compose.yml file
     echo 'Generating your docker-compose.yml file ...'
-    cd docker
-    sed -e s/PORT/"$1"/ template.yml > docker-compose.yml
+    sed -e s/PORT/"$port"/ -e s/PATH/"$path"/ template.yml > docker-compose.yml
 }
 
-build() {
+build_server() {
     # Builds and starts containers
     echo 'Building your containers ...'
     docker-compose -p "$base" up -d
+
+    if [ "$rebuild" = true ]; then
+        echo 'Rebuilding your images ...'
+        docker-compose -p "$base" build
+    fi
 
     echo
     echo 'Your docker environment is up and running!' # verify is this is true
@@ -89,5 +103,8 @@ build() {
 
 parse_options "$@"
 start_machine "$machine_name"
-generate_compose_file "$port"
-build
+
+cd docker
+
+generate_compose_file
+build_server

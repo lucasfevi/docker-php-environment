@@ -8,9 +8,9 @@ nginx:
     - app
 
 php:
+  build: ./php/
   expose:
     - 9000
-  image: php:7.0-fpm
   volumes_from:
     - app
 
@@ -18,4 +18,4 @@ app:
   command: "true"
   image: php:7.0-fpm
   volumes:
-    - ../www/:/var/www/html
+    - PATH:/var/www/html
