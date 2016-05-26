@@ -15,12 +15,10 @@ base=${base/-/}
 show_help () {
     echo 'Usage: docker/start [OPTIONS] '
     echo
-    echo 'What I am?'
-    echo
     echo 'Options:'
     echo '  -m            Docker machine name to be started. (default: default)'
     echo '  -P            Port to be used on your server. (default: 80)'
-    echo '  -p            Path to be used as root on your folder. (default: ../www/)'
+    echo '  -p            Path to be used as root on your server. (default: ../www/)'
     echo '  -f            Force rebuild on the images.'
 }
 
@@ -70,12 +68,9 @@ start_machine() {
             docker-machine start "$1"
         ;;
     esac
-
-    set_environment "$1"
 }
 
 set_environment() {
-    # Sets environment
     echo 'Setting your environment ...'
     eval $(docker-machine env "$1")
 }
@@ -103,6 +98,7 @@ build_server() {
 
 parse_options "$@"
 start_machine "$machine_name"
+set_environment "$machine_name"
 
 cd docker
 

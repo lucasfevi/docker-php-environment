@@ -4,15 +4,76 @@ set -e
 # sex -x
 
 machine_name='default'
+stop_machine=false
 
 # Get last directory of pwd
 base=$(basename `pwd`)
 base=${base/-/}
 
-echo 'Finishing your server ...'
+show_help () {
+    echo 'Usage: docker/stop [OPTIONS] '
+    echo
+    echo 'Options:'
+    echo '  -m            Docker machine name to be started. (default: default)'
+    echo '  -a            Stop your machine.'
+}
 
-# Sets environment
-eval $(docker-machine env $machine_name)
+parse_options() {
+    set -- "$@"
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        -h)
+            show_help
+            exit 0
+        ;;
+        -m) machine_name="$2"
+            shift 2
+        ;;
+        -a) stop_machine=true
+            shift 1
+        ;;
+        ?*) echo 'ERROR: Unknown option.'
+            show_help
+            exit 0
+        ;;
+      esac
+    done
+}
 
-cd docker
-docker-compose -p $base stop
+check_machine() {
+    if ! docker-machine status $1 &> /dev/null ; then
+        echo "ERROR: somethind wrong happened when we tried to reach your"
+        echo "docker-machine. Verify the machine name and try it again."
+        exit 0
+    fi
+
+    local status=$(docker-machine status "$1")
+    if [ $status = 'Stopped' ]; then
+        echo "Your docker-machine $1 is stopped. Try docker/start first."
+        exit 0
+    fi
+}
+
+set_environment() {
+    echo 'Setting your environment ...'
+    eval $(docker-machine env "$1")
+}
+
+stop_server() {
+    echo 'Stopping your server ...'
+    cd docker
+    docker-compose -p "$base" stop
+}
+
+stop_machine() {
+    if [ "$stop_machine" = true ]; then
+        echo 'Stopping your machine ...'
+        docker-machine stop "$machine_name"
+    fi
+}
+
+parse_options "$@"
+check_machine "$machine_name"
+set_environment "$machine_name"
+stop_server
+stop_machine
