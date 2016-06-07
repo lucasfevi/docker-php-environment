@@ -88,7 +88,7 @@ build_server() {
 
     if [ "$rebuild" = true ]; then
         echo 'Rebuilding your images ...'
-        docker-compose -p "$base" build
+        docker-compose -p "$base" build --pull
     fi
 
     echo

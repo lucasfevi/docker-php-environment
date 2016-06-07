@@ -15,5 +15,5 @@ RUN apt-get install -y libmcrypt-dev
 RUN docker-php-ext-install mcrypt
 
 # Install XSL
-RUN apt-get install -y libxslt-dev
-RUN docker-php-ext-install xsl
+# RUN apt-get install -y libxslt-dev
+# RUN docker-php-ext-install xsl
