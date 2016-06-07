@@ -1,6 +1,8 @@
 FROM php:7.0-fpm
 MAINTAINER Lucas Vieira <newlucasfevi@gmail.com>
 
+COPY ./php.ini /usr/local/etc/php/
+
 RUN apt-get update
 
 # Install opcache
