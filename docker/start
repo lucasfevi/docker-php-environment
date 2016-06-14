@@ -5,7 +5,7 @@ set -e
 
 machine_name='default'
 port=80
-path='..\/www\/'
+path='..\/'
 rebuild=false
 
 # Get last directory of pwd
