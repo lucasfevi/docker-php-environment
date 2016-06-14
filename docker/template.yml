@@ -1,21 +1,12 @@
-nginx:
-  build: ./nginx/
-  links:
-    - php
+php:
+  build: ./php/
   ports:
     - PORT:80
   volumes_from:
     - app
 
-php:
-  build: ./php/
-  expose:
-    - 9000
-  volumes_from:
-    - app
-
 app:
   command: "true"
-  image: php:5.6-fpm
+  image: php:5.6-apache
   volumes:
     - PATH:/var/www/html
