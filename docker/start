@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 
 set -e
-# set -x
+#set -x
 
-machine_name='default'
-port=80
-path='..\/'
+port=8080
+path='.\/'
 rebuild=false
-
-# Get last directory of pwd
-base=$(basename `pwd`)
-base=${base/-/}
 
 show_help () {
     echo 'Usage: docker/start [OPTIONS] '
     echo
     echo 'Options:'
-    echo '  -m            Docker machine name to be started. (default: default)'
-    echo '  -P            Port to be used on your server. (default: 80)'
-    echo '  -p            Path to be used as root on your server. (default: ../www/)'
+    echo '  -P            Port to be used on your server. (default: 8080)'
+    echo '  -p            Path to be used as root on your server. (default: ./)'
     echo '  -f            Force rebuild on the images.'
 }
 
@@ -30,14 +24,11 @@ parse_options() {
             show_help
             exit 0
         ;;
-        -m) machine_name="$2"
-            shift 2
-        ;;
         -P) port="$2"
             shift 2
         ;;
         -p) path="$2"
-            path=${path/\//\\\/}
+            path=${path/\//\\\/} # only replace first occurrence
             shift 2
         ;;
         -f) rebuild=true;
@@ -51,56 +42,26 @@ parse_options() {
     done
 }
 
-start_machine() {
-    if ! docker-machine status $1 &> /dev/null ; then
-        echo "ERROR: somethind wrong happened when we tried to start your"
-        echo "docker-machine. Verify the machine name and try it again."
-        exit 0
-    fi
-
-    local status=$(docker-machine status "$1")
-    case $status in
-        'Running')
-            echo "Great! Your docker-machine $1 is already running."
-        ;;
-        'Stopped')
-            echo "Starting docker-machine $1 ..."
-            docker-machine start "$1"
-        ;;
-    esac
-}
-
-set_environment() {
-    echo 'Setting your environment ...'
-    eval $(docker-machine env "$1")
-}
-
 generate_compose_file() {
-    # Go to docker folder and generates docker-compose.yml file
     echo 'Generating your docker-compose.yml file ...'
-    sed -e s/PORT/"$port"/ -e s/PATH/"$path"/ template.yml > docker-compose.yml
+    sed -e s/PORT/"$port"/ -e s/PATH/"$path"/ docker/template.yml > docker-compose.yml
 }
 
 build_server() {
     # Builds and starts containers
     echo 'Building your containers ...'
-    docker-compose -p "$base" up -d
+    docker-compose up -d
 
     if [ "$rebuild" = true ]; then
         echo 'Rebuilding your images ...'
-        docker-compose -p "$base" build --pull
+        docker-compose build --pull
     fi
 
     echo
-    echo 'Your docker environment is up and running!' # verify is this is true
+    echo 'Your docker environment is up and running!' # verify if that's true
     echo 'Use docker/open-browser to access your machine.'
 }
 
 parse_options "$@"
-start_machine "$machine_name"
-set_environment "$machine_name"
-
-cd docker
-
 generate_compose_file
 build_server

@@ -1,12 +1,9 @@
-php:
-  build: ./php/
-  ports:
-    - PORT:80
-  volumes_from:
-    - app
-
-app:
-  command: "true"
-  image: php:5.6-apache
-  volumes:
-    - PATH:/var/www/html
+version: '2'
+services:
+  php:
+    build: ./docker/php/
+    ports:
+      - PORT:80
+    volumes:
+      - PATH:/var/www/html
+      - PATHcomposer.json:/var/www/html/composer.json
