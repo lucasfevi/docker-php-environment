@@ -10,8 +10,3 @@ You can stop it with the following command
 ```
 $ docker/stop
 ```
-
-Or open your browser with for your current machine with
-```
-$ docker/open-browser
-```
