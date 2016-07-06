@@ -1,21 +1,23 @@
-nginx:
-  build: ./nginx/
-  links:
-    - php
-  ports:
-    - PORT:80
-  volumes_from:
-    - app
+version: '2'
+services:
+  nginx:
+    build: ./docker/nginx/
+    links:
+      - php
+    ports:
+      - PORT:80
+    volumes_from:
+      - app
 
-php:
-  build: ./php/
-  expose:
-    - 9000
-  volumes_from:
-    - app
+  php:
+    build: ./docker/php/
+    expose:
+      - 9000
+    volumes_from:
+      - app
 
-app:
-  command: "true"
-  image: php:5.6-fpm
-  volumes:
-    - PATH:/var/www/html
+  app:
+    command: "true"
+    image: php:5.6-fpm
+    volumes:
+      - PATH:/var/www/html
