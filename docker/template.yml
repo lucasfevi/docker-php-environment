@@ -6,4 +6,3 @@ services:
       - PORT:80
     volumes:
       - PATH:/var/www/html
-      - PATHcomposer.json:/var/www/html/composer.json
